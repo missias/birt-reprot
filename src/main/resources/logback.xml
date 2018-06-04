@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+
+	<include resource="org/springframework/boot/logging/logback/base.xml" />
+
+	<appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+		<!-- in the absence of the class attribute, it is assumed that the desired
+			discriminator type is ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+
+<!--
+
+ 	<filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+		<evaluator>
+			<expression>java.lang.Throwable.class.isInstance(throwable)</expression>
+		</evaluator>
+		<onMatch>DENY</onMatch>
+	</filter>
+-->
+
+
+
+<!-- <filter class="br.gov.al.detran.log.SampleFilter">
+    <exceptionClassName>java.lang.Exception</exceptionClassName>
+</filter>
+ -->
+		<discriminator>
+			<key>actionid</key>
+			<defaultValue>birt</defaultValue>
+		</discriminator>
+
+		<sift>
+
+			<appender name="FILE"
+				class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+				<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+					<!-- lembrar de alterar o caminho para a produção -->
+					<FileNamePattern>/opt/report/log/${actionid}-%d{yyyy-MM-dd}.html
+					</FileNamePattern>
+					<maxHistory>120</maxHistory>
+				</rollingPolicy>
+
+				<layout class="ch.qos.logback.classic.html.HTMLLayout">
+					<pattern>%d{yyyy-MM-dd HH:mm:ss.sss}%thread%-5level%logger%msg%throwable{full}
+					</pattern>
+					<Title>Logging Event</Title>
+				</layout>
+
+			</appender>
+
+		</sift>
+
+
+	</appender>
+
+
+
+	<!-- A logger is configured using the <logger> element. A <logger> element
+		takes exactly one mandatory name attribute, an optional level attribute,
+		and an optional additivity attribute, admitting the values true or false.
+		The value of the level attribute admitting one of the case-insensitive string
+		values TRACE, DEBUG, INFO, WARN, ERROR, ALL or OFF. The special case-insensitive
+		value INHERITED, or its synonym NULL, will force the level of the logger
+		to be inherited from higher up in the hierarchy. This comes in handy if you
+		set the level of a logger and later decide that it should inherit its level. -->
+
+	<!-- <logger name="br.gov.al.detran" level="ALL"> <appender-ref ref="SIFT"
+		/> </logger> -->
+
+
+ <logger name="org.apache.catalina" level="DEBUG">
+		<appender-ref ref="SIFT" />
+	</logger>
+
+	<!-- -->
+	<logger name="org.springframework.web" level="DEBUG">
+		<appender-ref ref="SIFT" />
+	</logger>
+
+	<logger name="org.eclipse" level="DEBUG">
+		<appender-ref ref="SIFT" />
+	</logger>
+
+
+	<logger name="br.gov.al.detran" level="TRACE">
+		<appender-ref ref="SIFT" />
+	</logger>
+
+
+</configuration>
