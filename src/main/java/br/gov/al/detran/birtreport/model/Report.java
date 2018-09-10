@@ -1,9 +1,7 @@
 package br.gov.al.detran.birtreport.model;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.ref.WeakReference;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import br.gov.al.detran.birtreport.service.ReportRunner;
 
@@ -21,8 +19,8 @@ public abstract class Report {
     protected ByteArrayOutputStream reportContent;
     protected ReportRunner reportRunner;
 
-    protected WeakHashMap<String, String> mapParam;
-    protected StringBuffer data;
+    protected Map<String, String> mapParam;
+    protected String data;
 
     protected String fileName;
     protected String format;
@@ -33,14 +31,14 @@ public abstract class Report {
         this.reportRunner = reportRunner;
     }
 
-    public Report(String name, WeakHashMap<String, String> mapParam,  StringBuffer data, ReportRunner reportRunner) {
+    public Report(String name, Map<String, String> mapParam,  String data, ReportRunner reportRunner) {
         this.name = name;
         this.mapParam = mapParam;
         this.reportRunner = reportRunner;
         this.data = data;
     }
 
-    public Report(String name, String fileName, WeakHashMap<String, String> mapParam,  StringBuffer data, ReportRunner reportRunner) {
+    public Report(String name, String fileName, Map<String, String> mapParam,  String data, ReportRunner reportRunner) {
         this.name = name;
         this.mapParam = mapParam;
         this.reportRunner = reportRunner;
@@ -48,14 +46,22 @@ public abstract class Report {
         this.fileName = fileName;
     }
 
+    public Report(String name, String format, String fileName, Map<String, String> mapParam,  String data, ReportRunner reportRunner) {
+        this.name = name;
+        this.mapParam = mapParam;
+        this.reportRunner = reportRunner;
+        this.data = data;
+        this.fileName = fileName;
+        this.format = format;
+    }
 
-    public Report(String name,WeakHashMap<String, String> mapParam, ReportRunner reportRunner) {
+    public Report(String name,Map<String, String> mapParam, ReportRunner reportRunner) {
         this.name = name;
         this.mapParam = mapParam;
         this.reportRunner = reportRunner;
     }
 
-    public Report(String name, String format,WeakHashMap<String, String> mapParam, ReportRunner reportRunner) {
+    public Report(String name, String format,Map<String, String> mapParam, ReportRunner reportRunner) {
         this.name = name;
         this.mapParam = mapParam;
         this.reportRunner = reportRunner;
@@ -86,14 +92,18 @@ public abstract class Report {
         return parameters;
     }
 
-	public WeakHashMap<String, String> getMapParam() {
+	public Map<String, String> getMapParam() {
 		return mapParam;
 	}
 
-	public  StringBuffer getData() {
+	public  String getData() {
 		return data;
 	}
 
+	public  String setData(String data) {
+		return this.data = data;
+	}
+	
 	public String getFileName() {
 		return fileName;
 	}

@@ -1,6 +1,8 @@
 package br.gov.al.detran.birtreport.controller;
 
-import java.util.WeakHashMap;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,47 +45,31 @@ public class RptControllerV1 {
 			@RequestParam(name = "bancos", value = "", required = false) String bancos) {
     	
 		ResponseEntity<Result> responseEntity;
-		Result r;
+		WeakReference<Result> r;
 		try {
  
-        	//httpHeaders = new WeakReference<>(new HttpHeaders());
+			if (logger.isDebugEnabled()) {
+			   logger.info( ("REPORT REQUEST NAME:   " + report));
+			}
+			
+			Map<String, String> paramMap = new HashMap<String, String>();
+			paramMap.put("bancos", (( (bancos == "") || (bancos == null)) ? env.getProperty("bancos") : bancos ));
 
-			logger.info( ("REPORT REQUEST NAME:   " + report).intern());
-			StringBuffer data = new StringBuffer(datasource.intern());
+			String downloadReportFile = new WeakReference<BIRTReport>(new BIRTReport(report, file_name, paramMap, datasource, reportRunner)).get().runReportAndWritePDF().getFileName();
 
-			WeakHashMap<String, String> paramMap = new WeakHashMap<String, String>();
-			paramMap.put("bancos".intern(), (( (bancos == "") || (bancos == null)) ? env.getProperty("bancos").intern() : bancos.intern() ));
+        	r = new WeakReference<Result>(new Result());
+			r.get().setReportName(report + ".rptdesign");
+			r.get().setReportFileName(downloadReportFile);
+			r.get().getRetorno().put("codigo", "200");
+			r.get().getRetorno().put("mensagem", "OK");
+			r.get().setPath(env.getProperty("birt_temp_pdf_output_dir" + downloadReportFile + ".pdf"));
 
-			StringBuilder downloadReportFile = new StringBuilder();
-			downloadReportFile.append(new BIRTReport(report.intern(), file_name.intern(), paramMap, data, reportRunner).runReportAndWritePDF().getFileName());
-
-			/*httpHeaders.get().setContentType(MediaType.parseMediaType("application/pdf".intern()));
-			httpHeaders.get().add("Cache-Control".intern(), "no-cache, no-store, must-revalidate".intern());
-			httpHeaders.get().add("Pragma".intern(), "no-cache".intern());
-			httpHeaders.get().add("Expires".intern(), "0".intern());
-            */
-			   
-        	r = new Result();
-			r.setReportName(report + ".rptdesign");
-			r.setReportFileName(downloadReportFile.toString().intern());
-			r.getRetorno().put("codigo".intern(), "200".intern());
-			r.getRetorno().put("mensagem".intern(), "OK".intern());
-			r.setPath(env.getProperty("birt_temp_pdf_output_dir".intern() + downloadReportFile.toString().intern() + ".pdf".intern()));
-
-			responseEntity = new ResponseEntity<Result>(r,  HttpStatus.OK); 
-
+			responseEntity = new ResponseEntity<Result>(r.get(),  HttpStatus.OK); 
 			
 			return responseEntity;
 			
-			
-			
         } catch (Exception e) {
         	
-        	r = new Result();
-        	
-        	r.getRetorno().put("codigo".intern(), "500".intern());
-			r.getRetorno().put("mensagem".intern(), e.getLocalizedMessage().intern());
-
 			responseEntity = new ResponseEntity<Result>(HttpStatus.NOT_IMPLEMENTED);
 			return responseEntity;
 		}
